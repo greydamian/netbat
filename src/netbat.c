@@ -191,8 +191,8 @@ int main(int argc, char *argv[]) {
         }
         sd = accept(serv_sd, NULL, 0);
         if (sd == -1) {
-            fprintf(stderr, "netbat: error: failure accepting connection on \
-                    port %d\n", opts.port);
+            fprintf(stderr, "netbat: error: failure accepting connection on "
+                    "port %d\n", opts.port);
             exit(EXIT_FAILURE);
         }
         /* no further use for listening socket */
