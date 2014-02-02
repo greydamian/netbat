@@ -23,6 +23,7 @@ Compatibility
 
     * Linux
     * Unix
+    * OS X
 
 Installation
 ------------
