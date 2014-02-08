@@ -17,8 +17,8 @@
 #include <string.h>
 
 /*
- * sys/socket.h: AF_INET, SOCK_STREAM, SHUT_WR, socket(), connect(), bind(), 
- *               listen(), shutdown()
+ * sys/socket.h: AF_INET, SOCK_STREAM, SHUT_RD, SHUT_WR, socket(), connect(), 
+ *               bind(), listen(), recv(), send(), shutdown()
  * arpa/inet.h : INADDR_ANY, struct sockaddr_in, htons(), htonl(), inet_addr()
  */
 #include <sys/socket.h>
@@ -47,10 +47,9 @@ struct options {
  * Arguments struct for {recvsender()} function.
  */
 typedef struct {
-    int iput; /* descriptor for input  */
-    int oput; /* descriptor for output */
-    int sock; /* socket descriptor     */
-} recvsender_arg_t;
+    int fd; /* file descriptor   */
+    int sd; /* socket descriptor */
+} receiver_sender_arg_t;
 
 /*
  * Outputs usage information to {stderr}.
@@ -140,34 +139,61 @@ int create_clntsock(char *addr, int port) {
 }
 
 /*
- * Reads data from an input file/socket descriptor, and writes that data to an 
- * output file/socket descriptor. Takes arguments for a pointer to a 
- * recvsender_arg_t struct {arg} which has the following elements:
+ * Reads data from a socket descriptor and then writes that data to a file 
+ * descriptor. Takes arguments for a pointer to a receiver_sender_arg_t struct 
+ * {arg} which has the following elements:
  *
- * {iput}: file/socket descriptor to read from
- * {oput}: file/socket descriptor to write to
- * {endt}: thread to cancel on exit
+ * {fd}: file descriptor to write to
+ * {sd}: socket descriptor to read from
  *
  * Returns NULL.
  */
-void *recvsender(void *arg) {
-    int iput = ((recvsender_arg_t *)arg)->iput;
-    int oput = ((recvsender_arg_t *)arg)->oput;
-    int sock = ((recvsender_arg_t *)arg)->sock;
+void *receiver(void *arg) {
+    int fd = ((receiver_sender_arg_t *)arg)->fd;
+    int sd = ((receiver_sender_arg_t *)arg)->sd;
 
     char buf[BUFSIZE];
-    int  rbytes = 0, wbytes = 0;
+    int rbytes = 0, wbytes = 0;
 
-    rbytes = read(iput, buf, BUFSIZE);
+    rbytes = recv(sd, buf, BUFSIZE, 0);
     while (rbytes > 0) {
-        wbytes = write(oput, buf, rbytes);
+        wbytes = write(fd, buf, rbytes);
         while (wbytes < rbytes)
-            wbytes += write(oput, buf + wbytes, rbytes - wbytes);
-        rbytes = read(iput, buf, BUFSIZE);
+            wbytes += write(fd, buf + wbytes, rbytes - wbytes);
+        rbytes = recv(sd, buf, BUFSIZE, 0);
     }
 
-    if (oput == sock)
-        shutdown(oput, SHUT_WR); /* shutdown socket for writing */
+    shutdown(sd, SHUT_RD); /* shutdown socket for reading */
+
+    return NULL;
+}
+
+/*
+ * Reads data from a file descriptor and then writes that data to a socket 
+ * descriptor. Takes arguments for a pointer to a receiver_sender_arg_t struct 
+ * {arg} which has the following elements:
+ *
+ * {fd}: file descriptor to read from
+ * {sd}: socket descriptor to write to
+ *
+ * Returns NULL.
+ */
+void *sender(void *arg) {
+    int fd = ((receiver_sender_arg_t *)arg)->fd;
+    int sd = ((receiver_sender_arg_t *)arg)->sd;
+
+    char buf[BUFSIZE];
+    int rbytes = 0, wbytes = 0;
+
+    rbytes = read(fd, buf, BUFSIZE);
+    while (rbytes > 0) {
+        wbytes = send(sd, buf, rbytes, 0);
+        while (wbytes < rbytes)
+            wbytes += send(sd, buf + wbytes, rbytes - wbytes, 0);
+        rbytes = read(fd, buf, BUFSIZE);
+    }
+
+    shutdown(sd, SHUT_WR); /* shutdown socket for writing */
 
     return NULL;
 }
@@ -182,27 +208,26 @@ int main(int argc, char *argv[]) {
 
     int sd = -1;
     if (opts.host == NULL) {
-        /* act as server */
+        /* server action */
         int serv_sd = create_servsock(opts.port);
         if (serv_sd == -1) {
-            fprintf(stderr, "netbat: error: failure listening on port %d\n", 
-                    opts.port);
+            fprintf(stderr, "error: failure listening on port %d\n", opts.port);
             exit(EXIT_FAILURE);
         }
         sd = accept(serv_sd, NULL, 0);
         if (sd == -1) {
-            fprintf(stderr, "netbat: error: failure accepting connection on "
-                    "port %d\n", opts.port);
+            fprintf(stderr, "error: failure accepting connection on port %d\n", 
+                    opts.port);
             exit(EXIT_FAILURE);
         }
         /* no further use for listening socket */
         close(serv_sd);
     }
     else {
-        /* act as client */
+        /* client action */
         sd = create_clntsock(opts.host, opts.port);
         if (sd == -1) {
-            fprintf(stderr, "netbat: error: failure connecting to %s:%d\n", 
+            fprintf(stderr, "error: failure connecting to %s:%d\n", 
                     opts.host, opts.port);
             exit(EXIT_FAILURE);
         }
@@ -211,37 +236,35 @@ int main(int argc, char *argv[]) {
     if (sd < 0) {
         /* should never reach here, any socket errors should be caught 
            previously */
-        fprintf(stderr, "netbat: error: failed to establish connection\n");
+        fprintf(stderr, "error: failure establishing connection\n");
         exit(EXIT_FAILURE);
     }
 
     pthread_t rx_thread, tx_thread;
 
     /* build argument to receiver thread */
-    recvsender_arg_t recver_arg;
-    recver_arg.iput = sd;
-    recver_arg.oput = STDOUT_FILENO;
-    recver_arg.sock = sd;
+    receiver_sender_arg_t receiver_arg;
+    receiver_arg.fd = STDOUT_FILENO;
+    receiver_arg.sd = sd;
 
     /* build argument to sender thread */
-    recvsender_arg_t sender_arg;
-    sender_arg.iput = STDIN_FILENO;
-    sender_arg.oput = sd;
-    sender_arg.sock = sd;
+    receiver_sender_arg_t sender_arg;
+    sender_arg.fd = STDIN_FILENO;
+    sender_arg.sd = sd;
 
     int r = 0;
 
     /* start receiver thread */
-    r = pthread_create(&rx_thread, NULL, recvsender, &recver_arg);
+    r = pthread_create(&rx_thread, NULL, receiver, &receiver_arg);
     if (r != 0) {
-        fprintf(stderr, "netbat: error: failure creating receiver thread\n");
+        fprintf(stderr, "error: failure creating receiver thread\n");
         exit(EXIT_FAILURE);
     }
 
     /* start sender thread */
-    r = pthread_create(&tx_thread, NULL, recvsender, &sender_arg);
+    r = pthread_create(&tx_thread, NULL, sender, &sender_arg);
     if (r != 0) {
-        fprintf(stderr, "netbat: error: failure creating sender thread\n");
+        fprintf(stderr, "error: failure creating sender thread\n");
         exit(EXIT_FAILURE);
     }
 
