@@ -72,13 +72,13 @@ int parse_args(struct options *opts, int argc, char *argv[]) {
         /* too few arguments */
         return -1;
 
+    if (argc > 2)
+        opts->host = argv[argc - 2];
+
     opts->port = atoi(argv[argc - 1]);
     if (opts->port < 1)
         /* invalid port number */
         return -1;
-
-    if (argc > 2)
-        opts->host = argv[argc - 2];
 
     return 0;
 }
