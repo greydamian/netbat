@@ -8,7 +8,7 @@
 /*
  * stdio.h : stderr, printf(), fprintf()
  * stdlib.h: EXIT_FAILURE, EXIT_SUCCESS, exit()
- * unistd.h: STDIN_FILENO, STDOUT_FILENO
+ * unistd.h: STDIN_FILENO, STDOUT_FILENO, read(), write()
  * string.h: memset()
  */
 #include <stdio.h>
@@ -44,7 +44,7 @@ struct options {
 };
 
 /*
- * Arguments struct for {recvsender()} function.
+ * Arguments struct for {receiver()} and {sender()} functions.
  */
 typedef struct {
     int fd; /* file descriptor   */
@@ -59,7 +59,10 @@ void print_usage() {
 }
 
 /*
- * Parses command-line arguments into their corresponding command options.
+ * Parses command-line arguments into their corresponding command options. 
+ * Takes arguments for an options struct into which to store the parsed 
+ * options {opts}, the number of command-line arguments {argc}, the argument 
+ * vector {argv}.
  *
  * On success, 0 is returned. On error, -1 is returned.
  */
@@ -113,8 +116,8 @@ int create_servsock(int port) {
 }
 
 /*
- * Creates a TCP  socket descriptor and connects it to a service. Takes 
- * arguments for IP address of the service {addr}, and port number of the 
+ * Creates a TCP  socket descriptor and connects it to a listening service. 
+ * Takes arguments for IP address of the service {addr}, and port number of the 
  * service {port}.
  *
  * On success, returns successfully created socket descriptor. On error, 
@@ -140,8 +143,8 @@ int create_clntsock(char *addr, int port) {
 
 /*
  * Reads data from a socket descriptor and then writes that data to a file 
- * descriptor. Takes arguments for a pointer to a receiver_sender_arg_t struct 
- * {arg} which has the following elements:
+ * descriptor. Takes arguments for a pointer to a {receiver_sender_arg_t} 
+ * struct {arg} which has the following elements:
  *
  * {fd}: file descriptor to write to
  * {sd}: socket descriptor to read from
@@ -170,8 +173,8 @@ void *receiver(void *arg) {
 
 /*
  * Reads data from a file descriptor and then writes that data to a socket 
- * descriptor. Takes arguments for a pointer to a receiver_sender_arg_t struct 
- * {arg} which has the following elements:
+ * descriptor. Takes arguments for a pointer to a {receiver_sender_arg_t} 
+ * struct {arg} which has the following elements:
  *
  * {fd}: file descriptor to read from
  * {sd}: socket descriptor to write to
