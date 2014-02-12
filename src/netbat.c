@@ -91,7 +91,7 @@ int parse_args(struct options *opts, int argc, char *argv[]) {
  * connections. Takes arguments for the port number on which to listen for
  * incoming connections {port}.
  *
- * On success, returns successfully created socket descriptor. On error, 
+ * On success, successfully created socket descriptor is returned. On error, 
  * returns -1.
  */
 int create_servsock(int port) {
@@ -120,7 +120,7 @@ int create_servsock(int port) {
  * Takes arguments for IP address of the service {addr}, and port number of the 
  * service {port}.
  *
- * On success, returns successfully created socket descriptor. On error, 
+ * On success, successfully created socket descriptor is returned. On error, 
  * returns -1.
  */
 int create_clntsock(char *addr, int port) {
@@ -144,7 +144,7 @@ int create_clntsock(char *addr, int port) {
 /*
  * Reads data from a socket descriptor and then writes that data to a file 
  * descriptor. Takes arguments for a pointer to a {receiver_sender_arg_t} 
- * struct {arg} which has the following elements:
+ * struct {arg} with the following elements:
  *
  * {fd}: file descriptor to write to
  * {sd}: socket descriptor to read from
@@ -174,7 +174,7 @@ void *receiver(void *arg) {
 /*
  * Reads data from a file descriptor and then writes that data to a socket 
  * descriptor. Takes arguments for a pointer to a {receiver_sender_arg_t} 
- * struct {arg} which has the following elements:
+ * struct {arg} with the following elements:
  *
  * {fd}: file descriptor to read from
  * {sd}: socket descriptor to write to
@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (sd < 0) {
-        /* should never reach here, any socket errors should be caught 
+        /* should never reach here, any socket errors should have been caught 
            previously */
         fprintf(stderr, "error: failure establishing connection\n");
         exit(EXIT_FAILURE);
