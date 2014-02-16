@@ -5,11 +5,11 @@ CC="cc"; # c compiler command (can be hard-coded to "gcc" or "clang")
 SOURCE="netbat.c";
 OUTPUT="../bin/netbat";
 
-# compiler & linker flags for gcc
+# gcc specific compiler & linker flags
 GCC_CFLAGS="";
 GCC_LDFLAGS="-pthread";
 
-# compiler & linker flags for clang
+# clang specific compiler & linker flags
 CLANG_CFLAGS="";
 CLANG_LDFLAGS="";
 
