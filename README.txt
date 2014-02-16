@@ -53,7 +53,7 @@ There are many purposes for which netbat can be used. However, here I will
 focus on 3 specific usage examples: file transfer, HTTP request, instant 
 messaging.
 
-Netbat can be used to transer a file (e.g. myfile) by executing the following 
+Netbat can be used to transfer a file (e.g. myfile) by executing the following 
 commands on their respective hosts:
 
     host-a$ netbat 4444 < myfile
@@ -77,7 +77,7 @@ following commands on their respective hosts:
     host-b$ netbat 192.168.0.2 4444
 
 After executing the previous commands, anything typed as input to one of the 
-commands will be displayed as output from the other and vice versa. Supplying 
+commands will be displayed as output from the other and vice-versa. Supplying 
 EOF (End Of File) to one of the programs will terminate the session, this can 
 usually be done by typing [Ctrl] + [D].
 
