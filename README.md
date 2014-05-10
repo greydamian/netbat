@@ -16,14 +16,14 @@ the TCP stream.
 My motivation for writing netbat was to better understand and practice socket 
 and thread programming. It was heavily influenced by attempting to emulate some 
 behaviours of the Netcat program (http://nc110.sourceforge.net/), which was 
-originally developed by *Hobbit*, and is a much more fully-featured utility.
+originally developed by \*Hobbit\*, and is a much more fully-featured utility.
 
 Compatibility
 -------------
 
-    * Linux
-    * Unix
-    * OS X
+* Linux
+* Unix
+* OS X
 
 Installation
 ------------
@@ -64,8 +64,8 @@ N.B. The previous example presumes that host-a has the IP address 192.168.0.2.
 Netbat can be used to send a HTTP request to a web server, and display the 
 response, by executing the following command:
 
-    $ echo -ne 'GET / HTTP/1.1\r\nHost: 192.168.0.1\r\n' \
-      'Connection: close\r\n\r\n' | netbat 192.168.0.1 80
+    $ echo -ne 'GET / HTTP/1.1\r\nHost: 192.168.0.1\r\n'\
+    > 'Connection: close\r\n\r\n' | netbat 192.168.0.1 80
 
 N.B. The previous example presumes the web server is running on port 80 of the 
 host with IP address 192.168.0.1.
