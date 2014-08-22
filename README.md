@@ -4,7 +4,7 @@ netbat
 Overview
 --------
 
-Netbat is a simple TCP client/server utility program.
+Simple TCP client/server utility program.
 
 Netbat can act as either a TCP client or TCP server. Data is concurrently read 
 from standard input (stdin) then written to the TCP stream and read from the 
