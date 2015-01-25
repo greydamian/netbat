@@ -23,7 +23,7 @@ Compatibility
 
 * Linux
 * Unix
-* OS X
+* Apple OS X
 
 Installation
 ------------
@@ -31,7 +31,8 @@ Installation
 Full installation of netbat is a 2 step process. However, the second step is 
 optional.
 
-Firstly, navigate to the src directory and run the following command:
+Firstly, navigate to the root directory of the project and run the following 
+command:
 
     $ bash build.sh
 
@@ -86,7 +87,7 @@ N.B. The previous example presumes that host-a has the IP address 192.168.0.2.
 License
 -------
 
-Copyright (c) 2014 Damian Jason Lapidge
+Copyright (c) 2015 Damian Jason Lapidge
 
 Licensing terms and conditions can be found within the file LICENSE.txt.
 
