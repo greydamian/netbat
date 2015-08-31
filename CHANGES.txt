@@ -1,4 +1,0 @@
-netbat 1.0
-----------
-* initial release
-

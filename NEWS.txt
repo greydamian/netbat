@@ -1,0 +1,15 @@
+netbat v1.0.0
+-------------
+* Initial release
+
+TODO
+----
+* Switch from build script to setup script [v2.0.0]
+    * Add build/install/clean options
+* Add read from file option (-r) [v2.0.0]
+* Add write to file option (-w) [v2.0.0]
+* Add print help option (-h) [v2.0.0]
+* Add support for long options [v2.1.0]
+* Add progress bar option (-p) [v3.0.0]
+* Switch from build/setup script to Makefile [v4.0.0]
+
